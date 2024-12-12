@@ -6,6 +6,11 @@ const startUp = () => {
 
     try {
         const mongoose = mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+        const User = mongoose.model('user',new mongoose.Schema({
+            name: String,
+            email: String,
+            password: String
+        }))
         const amqplib = require('amqplib');
 
         (async () => {
@@ -16,9 +21,12 @@ const startUp = () => {
             await ch1.assertQueue(queue);
 
             // Listener
-            ch1.consume(queue, (msg) => {
+            ch1.consume(queue, async (msg) => {
                 if (msg !== null) {
                     console.log('Received:', msg.content.toString());
+                    const user =  new User(JSON.parse(msg.content.toString()));
+                    await user.save();
+
                     ch1.ack(msg);
                 } else {
                     console.log('Consumer cancelled by server');
