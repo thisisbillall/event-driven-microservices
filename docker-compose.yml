@@ -24,3 +24,30 @@ services:
       - '5432:5432'
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  consumer:
+    ports:
+      - '81:80'
+    build: ./consumer
+    environment:
+      - MONGO_URI=mongodb://mongo_db:27017/test
+      - EXPRESS_PORT=8080
+      - RABBIT_URI=amqp://admin:admin@myRabbit:5672/myvhost
+    depends_on:
+      - myRabbit
+      - mongo
+
+  producer:
+    restart: on-failure
+    ports:
+      - '80:80'
+    build: ./producer
+    environment:
+      - PG_URI=postgres://postgres:postgres@postgres_db:5432/postgres
+      - EXPRESS_PORT=8080
+      - RABBIT_URI=amqp://admin:admin@myRabbit:5672/myvhost
+    depends_on:
+      - myRabbit
+      - mongo
