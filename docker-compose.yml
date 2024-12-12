@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  myRabbit:
+    ports:
+      - '5672:5672'
+    image: rabbitmq:3.8.1-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_VHOST=myvhost
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+
+  mongo:
+    ports:
+      - '27017:27017'
+    image: mongo
+    volumes:
+      - ./data/mongo:/data/db
+
+  postgres_db:
+    image: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
